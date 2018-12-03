@@ -1,0 +1,208 @@
+
+<!DOCTYPE html>
+<html lang="简体中文" class="loading">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>引趣思庭 - 黄晓松的Blog</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate">
+    <meta name="keywords" content="黄晓松,"> 
+    <meta name="description" content="保存我的一些日常工作学习记录和无聊的碎言碎语。,"> 
+    <meta name="author" content="HuangXiaosong"> 
+    <link rel="alternative" href="atom.xml" title="引趣思庭" type="application/atom+xml"> 
+    <link rel="icon" href="/img/favicon.png"> 
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+    <link rel="stylesheet" href="/css/diaspora.css">
+</head>
+</html>
+<body class="loading">
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="icon-home image-icon" href="javascript:;"></a>
+    <div title="播放/暂停" class="icon-play"></div>
+    <h3 class="subtitle">Apache源码包编译RPM包与升级踩坑记录</h3>
+    <div class="social">
+        <!--<div class="like-icon">-->
+            <!--<a href="javascript:;" class="likeThis active"><span class="icon-like"></span><span class="count">76</span></a>-->
+        <!--</div>-->
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+    <div class="section">
+        <div class="article">
+    <div class="main">
+        <h1 class="title">Apache源码包编译RPM包与升级踩坑记录</h1>
+        <div class="stuff">
+            <span>十二月 02, 2018</span>
+            
+
+        </div>
+        <div class="content markdown">
+            <p>本文共分三部分，第一部分是我的踩坑详细记录，废话多；第二部分是整个编译升级过程的脚本操作步骤，没废话；第三部分全是废话牢骚。大家各取所需。。。</p>
+<p>觉得有帮助就点赞，哪里错了可以帮忙指出。谢谢。。。</p>
+<h3 id="一、Apache编译RPM包踩坑全记录"><a href="#一、Apache编译RPM包踩坑全记录" class="headerlink" title="一、Apache编译RPM包踩坑全记录"></a>一、Apache编译RPM包踩坑全记录</h3><p>由于历史遗留原因我公司系统使用的祖传Apache2.4.6被绿盟检测出了漏洞<code>（CVE-2017-3169、CVE-2017-7679、CVE-2017-3167）</code>，所以被迫无奈需要为Apache修复漏洞。网上搜索了下发现要修复漏洞有两种方法：1、打补丁；2、升级软件。</p>
+<p>由于自己本身玩过一下下linux，心想打补丁而已。。。easy啦。。。google补丁一下载，软件一装完事。结果。。。啪啪啪。。。</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/Apache-upgrade/apache-1.png?raw=true" alt="图1"></p>
+<p>没想到还能让我遇到这种事，请问各位大佬，这些陈年漏洞经常这样的吗？官方网站补丁都没了，其他地方的补丁软件又不敢用，毕竟出问题担待不起。所以只能抛弃方法1了。那么就剩下了方法2升级软件版本了。网上查了最新版本软件修复了所有已知的漏洞了。OK就它了。</p>
+<p>Apache软件更新方法包含了好多种。1、源码包安装；2、RPM包安装；</p>
+<p>源码包的安装很多人都觉的复杂其实主要是因为源码包需要先编译再安装，其实如果一切顺利的话也就<code>./configure  make  make install</code>三个命令就完事，可是很多人都在<code>./configure  make</code>这两步给坑死了。因为安装linux的软件有个依赖性特别让人抓狂。而RPM包毕竟容易是因为用RPM包安装可以使用yum来帮我们自动解决软件的依赖性。扯远了扯远了。。。</p>
+<p>回正题，因为我是在生产环境使用的所以客户要求我在给出升级方案的时候也能够给出一个回退方案。所以考虑到源码包安装比较复杂，所以我就只能用RPM包安装了。可是我在网上找来好久没找到合适自己的RPM包。所以我就干脆自己用源码包编译RPM包了。以下是编译过程遇到的一些坑，这里记录一下。</p>
+<p>我的系统：Centos7，Apache2.4.6。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">在浏览官网后发现了他又一个编译RPM包的网页：</span><br><span class="line">https://httpd.apache.org/docs/2.4/platform/rpm.html（可以参考下）</span><br></pre></td></tr></table></figure></p>
+<h4 id="第一步：下载源码包、安装依赖"><a href="#第一步：下载源码包、安装依赖" class="headerlink" title="第一步：下载源码包、安装依赖"></a>第一步：下载源码包、安装依赖</h4><p>网址：<a href="https://httpd.apache.org/download.cgi" target="_blank" rel="noopener">https://httpd.apache.org/download.cgi</a></p>
+<p>这里下载好需要的源码包<code>httpd-2.4.37.tar.bz2</code>，我试了下好像只有bz2结尾的文件才能用来编译RPM包。</p>
+<p>运行命令发现依赖了这么多软件包。。。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget http://mirrors.hust.edu.cn/apache//httpd/httpd-2.4.37.tar.bz2  #下载httpd源码包</span><br><span class="line"></span><br><span class="line">rpmbuild -tb httpd-2.4.37.tar.bz2  #编译RPM包</span><br></pre></td></tr></table></figure></p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/Apache-upgrade/apache-2.png?raw=true" alt="图2"></p>
+<p>这里可以简单的利用yum来安装上面依赖的软件。这里”yum install -y 软件名”就可以把这些软件都全部安装。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y zlib-devel libselinux-devel libuuid-devel pcre-devel openldap-devel lua-devel libxml2-devel openssl-devel apr-devel apr-util-devel  #使用yum安装所以依赖软件包</span><br></pre></td></tr></table></figure></p>
+<p>通过这一步就解决了编译RPM包的所有依赖关系了。是不是很简单。。。你以为这就结束了？是的结束了。再一次运行编译命令<code>rpmbuild -tb httpd-2.4.37.tar.bz2</code></p>
+<p>在经过了大概5分钟左右的等待后。。。出现了这个</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/Apache-upgrade/apache-3.png?raw=true" alt="图3"></p>
+<p>果然还是太年轻低估了linux折磨人的能力。。。</p>
+<h4 id="第二步：解决源码包编译错误"><a href="#第二步：解决源码包编译错误" class="headerlink" title="第二步：解决源码包编译错误"></a>第二步：解决源码包编译错误</h4><p>在网上搜了好久发现和我遇到一样问题的少之又少，而且方法试过了都毫无作用。然后一遍有一遍把虚拟机还原，怀疑是自己的打错命令。。。经过了抓狂、自我怀疑、自我否定、信心重建后。。。我重拾信心后心中大吼一声MMP。。。然后继续上网搜索。。。结果在这里找到了一个网友在编译httpd-2.4.20时也遇到类似的问题，而他是因为apr、apr-util两个软件包版本太旧了。我回头去看时也发现刚刚我们编译的时候其实它提示的是有版本要求的。</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/Apache-upgrade/apache-4.png?raw=true" alt="图4"></p>
+<p>但是通过rpm -ql apr可以查看到我系统的arp版本已经高于1.4.0。</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/Apache-upgrade/apache-5.png?raw=true" alt="图5"></p>
+<p>apr-util的版本也是高于1.4.0的。那说明我可能不是这个问题吧。</p>
+<p>后面我又继续搜索，结果发现了<a href="https://stackoverflow.com/questions/35408982/httpd-2-4-18-centos-7-rpm-build-file-not-found-mod-mpm-event-so" target="_blank" rel="noopener">这个</a>，这里他们说可能是apr和apr-util版本不同导致了问题。</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/Apache-upgrade/apache-6.png?raw=true" alt="图6"></p>
+<p>然后。。。我就把虚拟机又还原了。继续开始，所以我先把apr源码编译成了RPM包之后，再安装。。。反正一顿折腾之后发现apr和apr-util版本一样是1.5.2之后。。。还是不行。。。</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/Apache-upgrade/apache-7.png?raw=true" alt="图7"></p>
+<p>终于平复了心情。。。我想着死马当活马医了，干脆都用最新软件包好了。</p>
+<p>所以去<a href="https://apr.apache.org/download.cgi" target="_blank" rel="noopener">apache官网</a>重新下载了最新的apr软件包。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget http://mirrors.tuna.tsinghua.edu.cn/apache//apr/apr-1.6.5.tar.bz2</span><br></pre></td></tr></table></figure></p>
+<p>编译apr的rpm包：<code>rpmbuild -tb apr-1.6.5.tar.bz2</code>。如果编译apr包遇到“<code>Address already in use</code>”错误可以参考<a href="https://www.jianshu.com/p/41856a0d9947" target="_blank" rel="noopener">这里</a>的解决方法。</p>
+<p>如果编译成功进入~/rpmbuild/RPMS/x86_64可以看到生成的软件包:</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/Apache-upgrade/apache-8.png?raw=true" alt="图8"></p>
+<p>这里就可以安装apr了,记得使用<code>localinstall</code>命令同时指定安装两个包,否则会包依赖错误.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum localinstall apr-1.6.5-1.x86_64.rpm apr-devel-1.6.5-1.x86_64.rpm</span><br></pre></td></tr></table></figure></p>
+<p>使用rpm -ql apr可以查询软件是否安装成功升级</p>
+<h4 id="第三步：编译apache的rpm包"><a href="#第三步：编译apache的rpm包" class="headerlink" title="第三步：编译apache的rpm包"></a>第三步：编译apache的rpm包</h4><p>OK。。。apr版本升级成功。。。继续编译apache包，还是这条命令<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpmbuild -tb httpd-2.4.37.tar.bz2</span><br></pre></td></tr></table></figure></p>
+<p>编译成功，在~/rpmbuild/RPMS/x86_64可以发现编译成功的rpm包了。<br><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/Apache-upgrade/apache-9.png?raw=true" alt="图9"></p>
+<h4 id="第四步：升级httpd"><a href="#第四步：升级httpd" class="headerlink" title="第四步：升级httpd"></a>第四步：升级httpd</h4><p>我原先的系统httpd版本是2.4.6，然后apr是1.4.8、apr-util是1.5.2。在更新的时候发现你需要把旧版本的httpd-tools、httpd都先卸载才能安装新的httpd-tools、httpd，否则会提示已经又版本冲突。同时因为httpd不同版本所依赖的apr版本也是不一样的。所以更新httpd就需要更新3个软件，分别是：<code>httpd、httpd-tools、apr</code>。如果你使用的apr版本不匹配，有可能无法安装httpd，或者安装完了httpd服务却无法启动的问题。</p>
+<p>同时因为软件的互相依赖的关系，所以你卸载和安装软件的顺序是需要颠倒的。</p>
+<p>比如你要在其他服务器上升级httpd，那么你需要先卸载旧的软件：（因为我就是在实验机上编译rpm然后再到生产环境升级的）</p>
+<p>卸载顺序：<code>httpd &gt; httpd-tools &gt; apr</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -e httpd httpd-tools #卸载httpd、httpd-tools</span><br></pre></td></tr></table></figure></p>
+<p>因为发现有很多软件包依赖apr，如果要卸载apr就需要连带卸载其他这些依赖包很麻烦，所以我就使用了升级操作，发现可以顺利升级apr。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -Uvh apr-1.6.5-1.x86_64.rpm #升级apr版本</span><br></pre></td></tr></table></figure></p>
+<p>安装新版本httpd-tools、httpd<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -ivh httpd-tools-2.4.37-1.x86_64.rpm httpd-2.4.37-1.x86_64.rpm</span><br></pre></td></tr></table></figure></p>
+<p>查询httpd版本</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/Apache-upgrade/apache-10.png?raw=true" alt="图10"></p>
+<h3 id="二、Apache-2-4-37编译RPM包步骤"><a href="#二、Apache-2-4-37编译RPM包步骤" class="headerlink" title="二、Apache-2.4.37编译RPM包步骤"></a>二、Apache-2.4.37编译RPM包步骤</h3><p>RPM包编译步骤：</p>
+<h4 id="下载源码包"><a href="#下载源码包" class="headerlink" title="下载源码包"></a>下载源码包</h4><p>（链接是在官网复制的）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cd /mnt  #切换目录到/mnt</span><br><span class="line"></span><br><span class="line">wget http://mirrors.hust.edu.cn/apache//httpd/httpd-2.4.37.tar.bz2   #下载httpd源码包</span><br><span class="line"></span><br><span class="line">wget http://mirrors.tuna.tsinghua.edu.cn/apache//apr/apr-1.6.5.tar.bz2  #下载apr源码包</span><br></pre></td></tr></table></figure></p>
+<h4 id="更新apr软件包"><a href="#更新apr软件包" class="headerlink" title="更新apr软件包"></a>更新apr软件包</h4><p>编译apr的rpm包：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd /mnt  #切换目录到/mnt</span><br><span class="line"></span><br><span class="line">rpmbuild -tb apr-1.6.5.tar.bz2</span><br></pre></td></tr></table></figure></p>
+<p>编译成功,进入~/rpmbuild/RPMS/x86_64可以看到生成的软件包:</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/Apache-upgrade/apache-11.png?raw=true" alt="图11"></p>
+<p>这里就可以安装apr了,记得使用<code>localinstall</code>命令同时指定安装两个包,否则会包依赖错误.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd ~/rpmbuild/RPMS/x86_64</span><br><span class="line"></span><br><span class="line">yum localinstall apr-1.6.5-1.x86_64.rpm apr-devel-1.6.5-1.x86_64.rpm</span><br></pre></td></tr></table></figure></p>
+<p>使用<code>rpm -ql apr</code>可以查询软件是否安装成功升级<br><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/Apache-upgrade/apache-12.png?raw=true" alt="图12"></p>
+<h4 id="编译httpd-RPM包"><a href="#编译httpd-RPM包" class="headerlink" title="编译httpd RPM包"></a>编译httpd RPM包</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cd /mnt  #切换目录到/mnt</span><br><span class="line"></span><br><span class="line">rpmbuild -tb httpd-2.4.37.tar.bz2  #编译http的rpm包</span><br></pre></td></tr></table></figure>
+<p>这一步可能会出现软件的依赖性，可以使用yum或者其他你喜欢的方式安装所依赖的所有软件(其中apr使用1.6.5版本)。然后再次执行上面的命令。编译成功的话，编译好的RPM包将保存在目录：~/rpmbuild/RPMS/ 。</p>
+<p>编译好之后会在<code>~/rpmbuild/RPMS/</code>目录下生成这些RPM包<br><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/Apache-upgrade/apache-13.png?raw=true" alt="图13"></p>
+<h4 id="升级httpd"><a href="#升级httpd" class="headerlink" title="升级httpd"></a>升级httpd</h4><p>你要升级httpd，那么你需要先卸载旧的软件：</p>
+<p>卸载顺序：<code>httpd &gt; httpd-tools &gt; apr</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -e httpd httpd-tools #卸载httpd、httpd-tools</span><br></pre></td></tr></table></figure></p>
+<p>因为发现有很多软件包依赖apr，如果要卸载apr就需要连带卸载其他这些依赖包很麻烦，所以我就使用了升级操作，发现可以顺利升级apr。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -Uvh apr-1.6.5-1.x86_64.rpm #升级apr版本</span><br></pre></td></tr></table></figure></p>
+<p>安装新版本httpd-tools、httpd<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpm -ivh httpd-tools-2.4.37-1.x86_64.rpm httpd-2.4.37-1.x86_64.rpm</span><br></pre></td></tr></table></figure></p>
+<p>查询httpd版本<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@test ~]# httpd -v</span><br><span class="line"></span><br><span class="line">Server version: Apache/2.4.37 (Unix)</span><br><span class="line"></span><br><span class="line">Server built:   Nov  2 2018 11:35:49</span><br></pre></td></tr></table></figure></p>
+<p>Apache编译rpm包与升级完成。</p>
+<h3 id="三、一堆废话"><a href="#三、一堆废话" class="headerlink" title="三、一堆废话"></a>三、一堆废话</h3><p>这里还想多说一句就是：无论你在编译更新软件的时候有时候可能你的故障现象和网上的是一模一样的，但是按照网上的方法，别人能成功，而你却不行。那么这个有可能是因为我们两个人的linux的版本、编译的软件版本或者其他与编译有关联的软件包之间有一些不同，所以导致操作完遇到的是另一种情况。</p>
+<p>所以大家在更新的时候，除了要确认系统、软件版本外，其他编译相关联的软件包也需要多关注，有时候就是这些看似不相关的软件包导致了编译失败。还有就是遇到问题要多上网查询，因为这些问题总有人比你先遇到，可以参考他们的处理方法。如果你在网上没有找到与你相类似的问题，那么恭喜你！你发现新大陆了哈哈。。。拿你就更应该加油解决这个问题，可能这个问题会让你头疼很长一段时间，但是等你解决了它之后，那种舒畅，那种成就感不言而喻。同时也希望能把这些东西post到网上，让其他人能通过你的经历少踩些坑，前人种树，后人乘凉。。。</p>
+<p>后记：其实大家如果觉得自己编译太繁琐，且软件并不是用于生产环境的话可以去这个网址下载。应该还是挺靠谱的<a href="http://rpmfind.net/。" target="_blank" rel="noopener">http://rpmfind.net/。</a></p>
+<p>参考资料：</p>
+<p><a href="https://httpd.apache.org/docs/2.4/platform/rpm.html" target="_blank" rel="noopener">https://httpd.apache.org/docs/2.4/platform/rpm.html</a></p>
+<p><a href="https://segmentfault.com/a/1190000005160311" target="_blank" rel="noopener">https://segmentfault.com/a/1190000005160311</a></p>
+<p><a href="https://stackoverflow.com/questions/35408982/httpd-2-4-18-centos-7-rpm-build-file-not-found-mod-mpm-event-so" target="_blank" rel="noopener">https://stackoverflow.com/questions/35408982/httpd-2-4-18-centos-7-rpm-build-file-not-found-mod-mpm-event-so</a></p>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="false">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        <li title="0" data-url="http://link.hhtjim.com/163/5146554.mp3"></li>
+                    
+                        <li title="1" data-url="http://link.hhtjim.com/qq/001faIUs4M2zna.mp3"></li>
+                    
+                </ul>
+            
+        </div>
+        
+    <div id="gitalk-container" class="comment link" data-ae="false" data-ci="" data-cs="" data-r="" data-o="" data-a="" data-d="false">查看评论</div>
+
+
+    </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/diaspora.js"></script>
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+</html>

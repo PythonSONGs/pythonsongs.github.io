@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html lang="简体中文" class="loading">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>引趣思庭 - 黄晓松的Blog</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate">
+    <meta name="keywords" content="黄晓松,"> 
+    <meta name="description" content="保存我的一些日常工作学习记录和无聊的碎言碎语。,"> 
+    <meta name="author" content="HuangXiaosong"> 
+    <link rel="alternative" href="atom.xml" title="引趣思庭" type="application/atom+xml"> 
+    <link rel="icon" href="/img/favicon.png"> 
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+    <link rel="stylesheet" href="/css/diaspora.css">
+</head>
+</html>
+<body class="loading">
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="icon-home image-icon" href="javascript:;"></a>
+    <div title="播放/暂停" class="icon-play"></div>
+    <h3 class="subtitle">MAC OS使用串口调试交换机</h3>
+    <div class="social">
+        <!--<div class="like-icon">-->
+            <!--<a href="javascript:;" class="likeThis active"><span class="icon-like"></span><span class="count">76</span></a>-->
+        <!--</div>-->
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+    <div class="section">
+        <div class="article">
+    <div class="main">
+        <h1 class="title">MAC OS使用串口调试交换机</h1>
+        <div class="stuff">
+            <span>十二月 02, 2018</span>
+            
+
+        </div>
+        <div class="content markdown">
+            <p>换了mac os之后本来使用串口调试交换机都是使用虚拟机上的SecureCRT来调试的，可是每次都要打开虚拟机有些繁琐。并且SSH都可以用终端来调试特别简单，干脆，所以也就想着能不能直接使用终端来通过串口调试交换机。</p>
+<p>通过网上一番搜索发现安装驱动后就可以使用了，确实挺方便的。以下是安装方法：</p>
+<h2 id="一、安装驱动："><a href="#一、安装驱动：" class="headerlink" title="一、安装驱动："></a>一、安装驱动：</h2><p>MAC使用串口一般是通过USB转COM线来做的。因此你要先查看你USB转COM线的芯片版本，因为一般MAC系统不具备这个驱动。打开：关于本机&gt;系统报告 可以看到。</p>
+<p>比如我的芯片就是prolific公司的PL2303。</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/MAC-OS-use-console/minicom-1.png?raw=true" alt="图1"><br><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/MAC-OS-use-console/minicom-2.png?raw=true" alt="图2"></p>
+<p>驱动下载网址：<a href="http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&amp;pcid=41pro" target="_blank" rel="noopener">http://www.prolific.com.tw/US/ShowProduct.aspx?p_id=229&amp;pcid=41pro</a></p>
+<p>下载完直接解压安装。安装方法也就是一直允许而已，如果遇到小问题可以参考<a href="https://plugable.com/2011/07/12/installing-a-usb-serial-adapter-on-mac-os-x/#VERIFY" target="_blank" rel="noopener">这个</a>，或者简书上的<a href="https://www.jianshu.com/p/e25009af3726" target="_blank" rel="noopener">这个</a>。</p>
+<p>如果驱动安装正确，插入线缆你可以在/dev目录发现你的两个usbserial文件。</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/MAC-OS-use-console/minicom-3.png?raw=true" alt="图3"></p>
+<h2 id="二、调用串口调试"><a href="#二、调用串口调试" class="headerlink" title="二、调用串口调试"></a>二、调用串口调试</h2><h3 id="1、使用screen调试串口"><a href="#1、使用screen调试串口" class="headerlink" title="1、使用screen调试串口"></a>1、使用screen调试串口</h3><p>因为我是调试交换机所以使用下面这个命令。大家按需条件自己连接的波特率。</p>
+<p>命令有不明白可以使用<code>screen -h</code>查看帮助。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">serial文件路径：/dev/cu.usbserial</span><br><span class="line">screen -L /dev/cu.usbserial 9600 -L #指定文件路径与波特率</span><br></pre></td></tr></table></figure></p>
+<h4 id="screen的优势与短板"><a href="#screen的优势与短板" class="headerlink" title="screen的优势与短板"></a>screen的优势与短板</h4><p>1）优势：就是系统自带，随用随取。线缆一接，一段命令即可调试设备。结合自定义alias别名设置一个口令。。。丝般顺滑。。。</p>
+<p>2）短板：用完要关闭需要先按<code>Ctrl+A</code>，再按<code>Ctrl+K</code>来杀掉进程。我在使用过程中，每次通过这个方法关闭串口，下次使用必然无法再使用，因为/dev路径已经没有了Serial文件了。就算拔掉线缆再接也没用，只能重启电脑。</p>
+<h3 id="2、使用minicom来调用串口"><a href="#2、使用minicom来调用串口" class="headerlink" title="2、使用minicom来调用串口"></a>2、使用minicom来调用串口</h3><h4 id="1、通过brew安装minicom（有可能需要先将brew更新）"><a href="#1、通过brew安装minicom（有可能需要先将brew更新）" class="headerlink" title="1、通过brew安装minicom（有可能需要先将brew更新）"></a>1、通过brew安装minicom（有可能需要先将brew更新）</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install minicom</span><br></pre></td></tr></table></figure>
+<p>安装完minicom后，使用<code>minicom -s</code>来配置minicom。</p>
+<p>选择Serial port setup<br><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/MAC-OS-use-console/minicom-4.png?raw=true" alt="图4"></p>
+<p>按相应字母配置相应选项到自己需要的参数。（一般配置驱动文件路径、波特率等）<br><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/MAC-OS-use-console/minicom-5.png?raw=true" alt="图5"></p>
+<p>完成后，保存配置。按Exit退出即可。<br><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/MAC-OS-use-console/minicom-6.png?raw=true" alt="图6"></p>
+<p>下次使用直接使用命令minicom即可。<br><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/MAC-OS-use-console/minicom-7.png?raw=true" alt="图7"></p>
+<p>配置完需要退出的话，按ESC+X。<br><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/MAC-OS-use-console/minicom-8.png?raw=true" alt="图8"></p>
+<p>帮助菜单是ESC+Z。<br><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/MAC-OS-use-console/minicom-9.png?raw=true" alt="图9"></p>
+<p>PS：minicom启动默认调用配置文件。但是可以通过命令在开启的时候对参数进行定义。定义后他会忽略配置文件的参数用你命令配置的参数来调试。具体可以通过minicom -h查看。<br><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/MAC-OS-use-console/minicom-10.png?raw=true" alt="图10"></p>
+<h4 id="minicom的优势与短板"><a href="#minicom的优势与短板" class="headerlink" title="minicom的优势与短板"></a>minicom的优势与短板</h4><p>1）优势：断开重联终于不会再出现其他异常了，提供较丰富的功能。</p>
+<p>2）短板：需要自行安装，配置有些繁琐。</p>
+<p>经过来一段折腾之后，我现在已经稳定的使用minicom来调试我的设备来。前期配置有些繁琐，不过配置完之后一般就不用再去改动了。以后有关于minicom的其他技巧会再在这里更新的。</p>
+<p>如果觉得本文对你有帮助就点赞和喜欢吧。。。</p>
+<p>资料参考：</p>
+<p><a href="https://blog.csdn.net/u010285246/article/details/72354038" target="_blank" rel="noopener">Mac OS下安装串口调试工具minicom</a></p>
+<p><a href="https://my.oschina.net/purplespace/blog/1555741" target="_blank" rel="noopener">minicom在macos</a></p>
+<p><a href="https://www.cnblogs.com/humaoxiao/p/3594953.html" target="_blank" rel="noopener">在MAC OS X下安装usb转串口驱动（PL2303主控芯片）</a></p>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="false">
+                <source type="audio/mpeg" src="">
+            </audio>
+            
+                <ul id="audio-list" style="display:none">
+                    
+                        <li title="0" data-url="http://link.hhtjim.com/163/5146554.mp3"></li>
+                    
+                        <li title="1" data-url="http://link.hhtjim.com/qq/001faIUs4M2zna.mp3"></li>
+                    
+                </ul>
+            
+        </div>
+        
+    <div id="gitalk-container" class="comment link" data-ae="false" data-ci="" data-cs="" data-r="" data-o="" data-a="" data-d="false">查看评论</div>
+
+
+    </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/diaspora.js"></script>
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+</html>
