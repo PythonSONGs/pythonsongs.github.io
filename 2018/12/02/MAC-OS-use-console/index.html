@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SONG - 黄小松的部落格</title>
+    <title>SONG - 小松的部落格</title>
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -64,7 +64,7 @@
 <h2 id="二、调用串口调试"><a href="#二、调用串口调试" class="headerlink" title="二、调用串口调试"></a>二、调用串口调试</h2><h3 id="1、使用screen调试串口"><a href="#1、使用screen调试串口" class="headerlink" title="1、使用screen调试串口"></a>1、使用screen调试串口</h3><p>因为我是调试交换机所以使用下面这个命令。大家按需条件自己连接的波特率。</p>
 <p>命令有不明白可以使用<code>screen -h</code>查看帮助。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">serial文件路径：/dev/cu.usbserial</span><br><span class="line">screen -L /dev/cu.usbserial 9600 -L #指定文件路径与波特率</span><br></pre></td></tr></table></figure></p>
 <h4 id="screen的优势与短板"><a href="#screen的优势与短板" class="headerlink" title="screen的优势与短板"></a>screen的优势与短板</h4><p>1）优势：就是系统自带，随用随取。线缆一接，一段命令即可调试设备。结合自定义alias别名设置一个口令。。。丝般顺滑。。。</p>
-<p>2）短板：用完要关闭需要先按<code>Ctrl+A</code>，再按<code>Ctrl+K</code>来杀掉进程。我在使用过程中，每次通过这个方法关闭串口，下次使用必然无法再使用，因为/dev路径已经没有了Serial文件了。就算拔掉线缆再接也没用，只能重启电脑。</p>
+<p>2）短板：用完要关闭需要先按<code>Ctrl+A</code>，再按<code>Ctrl+K</code>来杀掉进程。我在使用过程中，每次通过这个方法关闭串口，下次使用必然无法再使用，因为/dev路径已经没有了Serial文件了。就算拔掉线缆再接也没用，只能重启电脑。(不知大家使用情况如何，反正我因为这个被折磨的一度想砸电脑！还好电脑比较贵，贫穷是我理智。。。)</p>
 <h3 id="2、使用minicom来调用串口"><a href="#2、使用minicom来调用串口" class="headerlink" title="2、使用minicom来调用串口"></a>2、使用minicom来调用串口</h3><h4 id="1、通过brew安装minicom（有可能需要先将brew更新）"><a href="#1、通过brew安装minicom（有可能需要先将brew更新）" class="headerlink" title="1、通过brew安装minicom（有可能需要先将brew更新）"></a>1、通过brew安装minicom（有可能需要先将brew更新）</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install minicom</span><br></pre></td></tr></table></figure>
 <p>安装完minicom后，使用<code>minicom -s</code>来配置minicom。</p>
 <p>选择Serial port setup<br><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/MAC-OS-use-console/minicom-4.png?raw=true" alt="图4"></p>
@@ -78,7 +78,8 @@
 <p>2）短板：需要自行安装，配置有些繁琐。</p>
 <p>经过来一段折腾之后，我现在已经稳定的使用minicom来调试我的设备来。前期配置有些繁琐，不过配置完之后一般就不用再去改动了。以后有关于minicom的其他技巧会再在这里更新的。</p>
 <p>如果觉得本文对你有帮助就点赞和喜欢吧。。。</p>
-<p><strong>文章内网站链接如有失效可以与我联系 | 原创文章转载请注明出处，谢谢！</strong><br><strong>资料参考：</strong><br><a href="https://blog.csdn.net/u010285246/article/details/72354038" target="_blank" rel="noopener">Mac OS下安装串口调试工具minicom</a><br><a href="https://my.oschina.net/purplespace/blog/1555741" target="_blank" rel="noopener">minicom在macos</a><br><a href="https://www.cnblogs.com/humaoxiao/p/3594953.html" target="_blank" rel="noopener">在MAC OS X下安装usb转串口驱动（PL2303主控芯片）</a></p>
+<p><strong>资料参考：</strong><br><a href="https://blog.csdn.net/u010285246/article/details/72354038" target="_blank" rel="noopener">Mac OS下安装串口调试工具minicom</a><br><a href="https://my.oschina.net/purplespace/blog/1555741" target="_blank" rel="noopener">minicom在macos</a><br><a href="https://www.cnblogs.com/humaoxiao/p/3594953.html" target="_blank" rel="noopener">在MAC OS X下安装usb转串口驱动（PL2303主控芯片）</a></p>
+<p><strong>文章内网站链接如有失效可以与我联系 | 原创文章转载请注明出处，谢谢！</strong></p>
 
             <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
             <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="false">
