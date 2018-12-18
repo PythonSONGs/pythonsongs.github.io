@@ -1,0 +1,201 @@
+
+<!DOCTYPE html>
+<html lang="简体中文" class="loading">
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SONG - 小松的部落格</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="google" content="notranslate">
+    <meta name="keywords" content="黄小松,"> 
+    <meta name="description" content="保存我的一些日常工作学习记录和无聊的碎言碎语。,"> 
+    <meta name="author" content="黄小松"> 
+    <link rel="alternative" href="atom.xml" title="SONG" type="application/atom+xml"> 
+    <link rel="icon" href="/img/favicon.png"> 
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.css">
+    <link rel="stylesheet" href="/css/diaspora.css">
+</head>
+</html>
+<body class="loading">
+    <div id="loader"></div>
+    <div id="single">
+    <div id="top" style="display: block;">
+    <div class="bar" style="width: 0;"></div>
+    <a class="icon-home image-icon" href="javascript:;"></a>
+    <div title="播放/暂停" class="icon-play"></div>
+    <h3 class="subtitle">彻底解决mysql中文乱码</h3>
+    <div class="social">
+        <!--<div class="like-icon">-->
+            <!--<a href="javascript:;" class="likeThis active"><span class="icon-like"></span><span class="count">76</span></a>-->
+        <!--</div>-->
+        <div>
+            <div class="share">
+                <a title="获取二维码" class="icon-scan" href="javascript:;"></a>
+            </div>
+            <div id="qr"></div>
+        </div>
+    </div>
+    <div class="scrollbar"></div>
+</div>
+    <div class="section">
+        <div class="article">
+    <div class="main">
+        <h1 class="title">彻底解决mysql中文乱码</h1>
+        <div class="stuff">
+            <span>十二月 17, 2018</span>
+            
+  <ul class="post-tags-list"><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/Mysql/">Mysql</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/中文乱码/">中文乱码</a></li><li class="post-tags-list-item"><a class="post-tags-list-link" href="/tags/转载/">转载</a></li></ul>
+
+
+        </div>
+        <div class="content markdown">
+            <blockquote>
+<p><strong>本文转载自：<a href="https://blog.csdn.net/u012410733/article/details/61619656" target="_blank" rel="noopener">彻底解决mysql中文乱码</a>,版权归作者所有。</strong><br>在工作中遇到了mysql数据库新建文本乱码问题。发现本文作者写的特别好思路又很清晰，所以保存转载过来。</p>
+</blockquote>
+<p>mysql是我们项目中非常常用的数据型数据库。但是因为我们需要在数据库保存中文字符，所以经常遇到数据库乱码情况。下面就来介绍一下如何彻底解决数据库中文乱码情况。</p>
+<h3 id="1、中文乱码"><a href="#1、中文乱码" class="headerlink" title="1、中文乱码"></a>1、中文乱码</h3><h4 id="1-1、中文乱码"><a href="#1-1、中文乱码" class="headerlink" title="1.1、中文乱码"></a>1.1、中文乱码</h4><blockquote>
+<p>create table user(name varchar(11));    # 创建user表<br>  insert into table user(“carl”);         # 添加数据<br>  select * from user;</p>
+</blockquote>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/mysql-display-chinese-garbled/my-1.png?raw=true" alt="图1"></p>
+<blockquote>
+<p>inert into user value(“哈哈”);</p>
+</blockquote>
+<p>无法插入中文字符：</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/mysql-display-chinese-garbled/my-2.png?raw=true" alt="图2"></p>
+<p>1.2、查看表字符编码</p>
+<blockquote>
+<p>   mysql&gt; show create table user \G;<br>    <strong><strong><strong><strong><strong><strong>***</strong></strong></strong></strong></strong></strong> 1. row <strong><strong><strong><strong><strong><strong>***</strong></strong></strong></strong></strong></strong><br>           Table: user<br>    Create Table: CREATE TABLE <code>user</code> (<br>      <code>name</code> varchar(11) DEFAULT NULL<br>    ) ENGINE=InnoDB DEFAULT CHARSET=latin1<br>    1 row in set (0.00 sec)</p>
+</blockquote>
+<p>我们可以看到表的默认字符集是latin1.<br>所以我们在创建表的时候就需要指定表的字符集:</p>
+<blockquote>
+<p>create table user(name varchar(11)) default charset=utf8; </p>
+</blockquote>
+<p>这样在Linux里面可以访问并且可以插入与访问这个表了。</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/mysql-display-chinese-garbled/my-3.png?raw=true" alt="图3"></p>
+<h4 id="1-3、数据库与操作系统编码"><a href="#1-3、数据库与操作系统编码" class="headerlink" title="1.3、数据库与操作系统编码"></a>1.3、数据库与操作系统编码</h4><p>虽然在服务器端可以显示中文正常，但是在客户端可能会显示乱码。因为我们的服务器是UTF8。</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/mysql-display-chinese-garbled/my-4.png?raw=true" alt="图4"></p>
+<p>而且数据库的编码也存在问题。</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/mysql-display-chinese-garbled/my-5.png?raw=true" alt="图5"></p>
+<p>这里我们可以看character_sert_database与character_set_server的字符集都是latin1.那么在mysql数据库中，server,database,table的字符集都默认是latin1.下面我们就来看看如何解决mysql乱码情况。</p>
+<h3 id="2、mysql设置变量的范围"><a href="#2、mysql设置变量的范围" class="headerlink" title="2、mysql设置变量的范围"></a>2、mysql设置变量的范围</h3><h4 id="2-1、session范围"><a href="#2-1、session范围" class="headerlink" title="2.1、session范围"></a>2.1、session范围</h4><p>查看数据库编码：</p>
+<blockquote>
+<p>show variables like ‘%char%’;</p>
+</blockquote>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/mysql-display-chinese-garbled/my-6.png?raw=true" alt="图6"></p>
+<p>修改字符编码：</p>
+<blockquote>
+<p>set character_set_server=utf8;<br>  set character_set_database=utf8;<br>  show variables like ‘%char%’;</p>
+</blockquote>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/mysql-display-chinese-garbled/my-7.png?raw=true" alt="图7"></p>
+<p>我们可以看到字符集已经修改成都是utf8了。但是这里有一个问题，那就是我们重新打开一个命令窗口然后查看数据编码就会出现下面的画面：</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/mysql-display-chinese-garbled/my-8.png?raw=true" alt="图8"></p>
+<h4 id="2-2、global范围"><a href="#2-2、global范围" class="headerlink" title="2.2、global范围"></a>2.2、global范围</h4><p>mysql设置变量的范围默认是session范围。如果设置多个会话的字符集那么需要设置global范围:Set [global|session] variables …</p>
+<blockquote>
+<p>   set global character_set_database=utf8;<br>    set global character_set_server=utf8;<br>    show variables like ‘%char%’;</p>
+</blockquote>
+<p>当我们跨会话查看mysql字符集都会看到都是utf8。如果你以为万事大吉了的话，那么你就大错特错了。</p>
+<h4 id="2-3、设置数据全局范围"><a href="#2-3、设置数据全局范围" class="headerlink" title="2.3、设置数据全局范围"></a>2.3、设置数据全局范围</h4><p>当我们数据库重启的时候，你们发现设置global范围的值又变成latin1了。</p>
+<blockquote>
+<p>   service mysqld restart<br>    mysql -uroot -pyourpassword<br>    show variables like ‘%char%’;</p>
+</blockquote>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/mysql-display-chinese-garbled/my-9.png?raw=true" alt="图9"></p>
+<p>不要怕，下面就教你终极大招：</p>
+<p>修改mysql配置文件/etc/my.cnf。</p>
+<blockquote>
+<p>   [mysqld]<br>    character-set-server=utf8<br>    [client]<br>    default-character-set=utf8<br>    [mysql]<br>    default-character-set=utf8</p>
+</blockquote>
+<p>请注意这几个参数配置的位置，不然可能会启动不起来mysql服务：</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/mysql-display-chinese-garbled/my-10.png?raw=true" alt="图10"></p>
+<p>OK。这下如果你重启mysql服务也会发现它的字符集是utf8.</p>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/mysql-display-chinese-garbled/my-11.png?raw=true" alt="图11"></p>
+<p>而且我们创建表的时候不需要指定字符编码,它默认就是utf8;</p>
+<blockquote>
+<p>   drop database test;<br>    create database test;<br>    use test;<br>    create table user(name varchar(11));<br>    show create table user \G;</p>
+</blockquote>
+<p><img src="https://github.com/PythonSONGs/MyBlogPhoto/blob/master/source/mysql-display-chinese-garbled/my-12.png?raw=true" alt="图12"></p>
+<p>3、总结<br>我看网上很多答案都是直接在session级别设置mysql的字符编码，这是治标不治本的方法。我们还是要从源头上解决这个问题。那就是修改mysql默认的配置文件，把它的字符集修改成能够使用中文字符的UTF8就OK了。</p>
+<hr>
+<p>作者：carl-zhao<br>来源：CSDN<br>原文：<a href="https://blog.csdn.net/u012410733/article/details/61619656" target="_blank" rel="noopener">https://blog.csdn.net/u012410733/article/details/61619656</a> </p>
+
+            <!--[if lt IE 9]><script>document.createElement('audio');</script><![endif]-->
+            <audio id="audio" loop="1" preload="auto" controls="controls" data-autoplay="false">
+                <source type="audio/mpeg" src="http://domain.com/awesome.mp3">
+            </audio>
+            
+        </div>
+        
+    <div id="gitalk-container" class="comment link" data-ae="false" data-ci="" data-cs="" data-r="" data-o="" data-a="" data-d="false">查看评论</div>
+
+
+    </div>
+    
+</div>
+
+
+    </div>
+</div>
+</body>
+<script src="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script src="//lib.baomitu.com/jquery/1.8.3/jquery.min.js"></script>
+<script src="/js/plugin.js"></script>
+<script src="/js/diaspora.js"></script>
+<link rel="stylesheet" href="/photoswipe/photoswipe.css">
+<link rel="stylesheet" href="/photoswipe/default-skin/default-skin.css">
+<script src="/photoswipe/photoswipe.min.js"></script>
+<script src="/photoswipe/photoswipe-ui-default.min.js"></script>
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+            <div class="pswp__top-bar">
+                <!--  Controls are self-explanatory. Order can be changed. -->
+                <div class="pswp__counter"></div>
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+</html>
